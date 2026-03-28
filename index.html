@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ouargla Smart Farm ERP v4.0</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="app">
+        <aside class="sidebar">
+            <h2>🏠 مزرعة ورقلة</h2>
+            <nav>
+                <button onclick="showTab('dashboard')" class="nav-btn active">📊 لوحة التحكم</button>
+                <button onclick="showTab('production')" class="nav-btn">🥚 الإنتاج والجودة</button>
+                <button onclick="showTab('birds')" class="nav-btn">🐓 إدارة القطيع</button>
+                <button onclick="showTab('inventory')" class="nav-btn">🌾 المخزن والمالية</button>
+                <button onclick="showTab('settings')" class="nav-btn">⚙️ الإعدادات والنسخ</button>
+            </nav>
+        </aside>
+
+        <main class="content">
+            <section id="dashboard" class="tab-content active">
+                <div class="kpi-container">
+                    <div class="card">كفاءة المربي: <span id="eff-score">100%</span></div>
+                    <div class="card">نقطة التعادل: <span id="break-even">0 بيضة</span></div>
+                    <div class="card">تنبيه المخزن: <span id="stock-alert">مستقر</span></div>
+                </div>
+                <canvas id="mainChart"></canvas>
+            </section>
+
+            <section id="production" class="tab-content">
+                <div class="input-form">
+                    <h3>تسجيل الإنتاج اليومي</h3>
+                    <div class="grid-inputs">
+                        <input type="date" id="prodDate">
+                        <input type="number" id="prodQty" placeholder="عدد البيض">
+                        <select id="prodColor">
+                            <option value="1">🟡 باهت</option>
+                            <option value="2">🟠 متوسط</option>
+                            <option value="3">🔥 غامق 100%</option>
+                        </select>
+                        <input type="text" id="prodNote" placeholder="ملاحظات (جو، خلطات...)">
+                        <button onclick="saveProduction()">حفظ وتسجيل</button>
+                    </div>
+                </div>
+                <table id="prodTable">
+                    <thead>
+                        <tr><th>التاريخ</th><th>العدد</th><th>اللون</th><th>الملاحظات</th><th>حذف</th></tr>
+                    </thead>
+                    <tbody id="prodBody"></tbody>
+                </table>
+            </section>
+
+            <section id="birds" class="tab-content">
+                <div class="input-form">
+                    <h3>إضافة طائر جديد</h3>
+                    <div class="grid-inputs">
+                        <input type="text" id="birdBreed" placeholder="السلالة">
+                        <input type="date" id="entryDate" title="تاريخ الدخول">
+                        <select id="birdStatus">
+                            <option value="active">نشيطة</option>
+                            <option value="medical">تحت العلاج</option>
+                        </select>
+                        <button onclick="addBird()">إضافة للقطيع</button>
+                    </div>
+                </div>
+                <ul id="birdsList"></ul>
+            </section>
+
+            <section id="inventory" class="tab-content">
+                <div class="card">
+                    <h3>رصيد العلف الحالي: <span id="current-stock">0</span> كجم</h3>
+                    <p>يكفي لمدة: <span id="days-left">0</span> أيام تقريباً</p>
+                </div>
+                <div class="input-form">
+                    <input type="number" id="addStockAmt" placeholder="الكمية المشتراة (كجم)">
+                    <input type="number" id="stockPrice" placeholder="سعر الكيلو (دج)">
+                    <button onclick="refillStock()">تحديث المخزن</button>
+                </div>
+            </section>
+
+            <section id="settings" class="tab-content">
+                <button onclick="exportFullData()" class="btn-backup">📥 تحميل نسخة احتياطية (JSON)</button>
+                <button onclick="exportToExcel()" class="btn-excel">📊 تصدير لـ Excel (CSV)</button>
+                <button onclick="toggleDarkMode()" class="btn-theme">🌙 وضع ليلي</button>
+            </section>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
