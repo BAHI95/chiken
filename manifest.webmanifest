@@ -1,0 +1,21 @@
+{
+  "name": "نظام إدارة مزرعة الدواجن",
+  "short_name": "إدارة المزرعة",
+  "description": "نظام متكامل لإدارة القطيع والعلف والتفقيس والإنتاج والسجل الصحي والمالية.",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./index.html?v=20260511-production-readiness",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060e1a",
+  "theme_color": "#060e1a",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+name: Monitor Production
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping production health endpoint
+        env:
+          PROD_HEALTHCHECK_URL: ${{ secrets.PROD_HEALTHCHECK_URL }}
+        run: |
+          if [ -z "$PROD_HEALTHCHECK_URL" ]; then
+            echo "PROD_HEALTHCHECK_URL secret is missing"
+            exit 1
+          fi
+          curl --fail --show-error --silent "$PROD_HEALTHCHECK_URL"
+

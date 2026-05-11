@@ -1,0 +1,19 @@
+{
+  "name": "@farm/api",
+  "private": true,
+  "version": "0.1.0",
+  "main": "server.cjs",
+  "scripts": {
+    "start": "node server.cjs",
+    "migrate": "node scripts/run-migrations.cjs",
+    "migrate:sqlite": "node scripts/migrate-sqlite-to-postgres.cjs",
+    "backup": "node scripts/backup-postgres.cjs",
+    "restore": "node scripts/restore-postgres-from-json.cjs",
+    "health-check": "node scripts/health-check.cjs"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "pg": "^8.20.0",
+    "resend": "^6.12.3"
+  }
+}

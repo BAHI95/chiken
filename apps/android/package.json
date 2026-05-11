@@ -1,0 +1,17 @@
+{
+  "name": "@farm/android-app",
+  "private": true,
+  "version": "0.1.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "expo start --android --host localhost --clear",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
+  },
+  "dependencies": {
+    "expo": "53.0.27",
+    "react": "19.0.0",
+    "react-native": "0.79.6",
+    "@farm/mobile-shell": "0.1.0"
+  }
+}

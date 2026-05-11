@@ -1,0 +1,38 @@
+name: Deploy Web
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "master"]
+    paths:
+      - "index.html"
+      - "styles/**"
+      - "js/**"
+      - "assets/**"
+      - "manifest.webmanifest"
+      - "sw.js"
+      - "vercel.json"
+      - "package.json"
+      - "package-lock.json"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_WEB_BASE_URL: ${{ secrets.PUBLIC_WEB_BASE_URL }}
+      PUBLIC_API_BASE_URL: ${{ secrets.PUBLIC_API_BASE_URL }}
+      PUBLIC_ENVIRONMENT: production
+      PUBLIC_SUPPORT_EMAIL: ${{ secrets.PUBLIC_SUPPORT_EMAIL }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run runtime:config
+      - run: npm run styles:build
+      - run: npx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - run: npx vercel deploy --prod --yes --token=${{ secrets.VERCEL_TOKEN }}

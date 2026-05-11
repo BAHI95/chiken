@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master", "codex/**"]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: chicken_platform_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d chicken_platform_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@127.0.0.1:5432/chicken_platform_test
+      SESSION_SECRET: ci-session-secret
+      WEB_BASE_URL: http://127.0.0.1:5500
+      API_BASE_URL: http://127.0.0.1:8787/api
+      PUBLIC_WEB_BASE_URL: http://127.0.0.1:5500
+      PUBLIC_API_BASE_URL: http://127.0.0.1:8787/api
+      PUBLIC_ENVIRONMENT: test
+      SUPPORT_EMAIL: support@example.com
+      AUTH_REQUIRE_EMAIL_VERIFICATION: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate runtime config
+        run: npm run runtime:config
+
+      - name: Build styles
+        run: npm run styles:build
+
+      - name: Run API migrations
+        run: npm run api:migrate
+
+      - name: Syntax checks
+        run: |
+          node --check apps/api/server.cjs
+          node --check apps/api/scripts/run-migrations.cjs
+          node --check apps/api/scripts/migrate-sqlite-to-postgres.cjs
+          node --check apps/api/scripts/backup-postgres.cjs
+          node --check apps/api/scripts/restore-postgres-from-json.cjs
+          node --check apps/api/scripts/health-check.cjs
+          node --check js/app.js
+
+      - name: Start API
+        run: |
+          nohup npm run api:start > api.log 2>&1 &
+          sleep 5
+
+      - name: Health check
+        run: npm run api:health-check
+
+      - name: Upload API log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-log
+          path: api.log

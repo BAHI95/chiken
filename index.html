@@ -1,93 +1,2640 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ouargla Smart Farm ERP v4.0</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div id="app">
-        <aside class="sidebar">
-            <h2>🏠 مزرعة ورقلة</h2>
-            <nav>
-                <button onclick="showTab('dashboard')" class="nav-btn active">📊 لوحة التحكم</button>
-                <button onclick="showTab('production')" class="nav-btn">🥚 الإنتاج والجودة</button>
-                <button onclick="showTab('birds')" class="nav-btn">🐓 إدارة القطيع</button>
-                <button onclick="showTab('inventory')" class="nav-btn">🌾 المخزن والمالية</button>
-                <button onclick="showTab('settings')" class="nav-btn">⚙️ الإعدادات والنسخ</button>
-            </nav>
-        </aside>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مزرعة هاجر ديواني — نظام إدارة الدواجن</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="theme-color" content="#060e1a" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="manifest.webmanifest?v=20260511-production-readiness" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <script src="vendor/chart.umd.min.js?v=20260511-production-readiness"></script>
+    <link rel="stylesheet" href="styles/app.css?v=20260511-production-readiness" />
+  </head>
+  <body>
+    <div id="auth-shell" class="auth-shell hidden">
+      <div class="auth-panel">
+        <div class="auth-brand">
+          <div class="brand-icon">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+              />
+            </svg>
+          </div>
+          <div>
+            <h1>منصة إدارة المزرعة</h1>
+            <p>كل حساب يفتح مزرعته الخاصة وبياناته المنفصلة تمامًا عن بقية المستخدمين.</p>
+          </div>
+        </div>
+        <div class="auth-toolbar">
+          <button id="auth-theme-toggle" class="theme-chip" type="button" onclick="cycleThemeMode()" aria-label="تبديل المظهر" title="تبديل المظهر">
+            <span>المظهر</span>
+            <strong id="auth-theme-toggle-label">تلقائي</strong>
+          </button>
+        </div>
+        <div class="auth-tabs">
+          <button id="auth-tab-login" class="auth-tab active" type="button" onclick="switchAuthMode('login')">
+            تسجيل الدخول
+          </button>
+          <button id="auth-tab-register" class="auth-tab" type="button" onclick="switchAuthMode('register')">
+            إنشاء حساب
+          </button>
+        </div>
+        <div id="auth-message" class="hidden"></div>
+        <div id="auth-login-panel" class="auth-form-panel">
+          <div class="fg">
+            <label>البريد الإلكتروني</label>
+            <input id="login-email" type="email" class="form-control" autocomplete="username" placeholder="name@example.com" />
+          </div>
+          <div class="fg">
+            <label>كلمة المرور</label>
+            <input id="login-password" type="password" class="form-control" autocomplete="current-password" placeholder="******" />
+          </div>
+          <div class="auth-actions-row">
+            <button class="btn btn-secondary btn-sm" type="button" onclick="switchAuthMode('forgot')">نسيت كلمة المرور</button>
+            <button class="btn btn-secondary btn-sm" type="button" onclick="switchAuthMode('verify')">إعادة إرسال التحقق</button>
+          </div>
+          <button class="btn btn-primary auth-submit" type="button" onclick="loginAccount()">دخول إلى المزرعة</button>
+        </div>
+        <div id="auth-register-panel" class="auth-form-panel hidden">
+          <div class="form-grid">
+            <div class="fg">
+              <label>الاسم الكامل</label>
+              <input id="register-full-name" type="text" class="form-control" placeholder="اسم صاحب المزرعة" />
+            </div>
+            <div class="fg">
+              <label>اسم المزرعة</label>
+              <input id="register-farm-name" type="text" class="form-control" placeholder="مثال: مزرعة الواحة" />
+            </div>
+            <div class="fg">
+              <label>البريد الإلكتروني</label>
+              <input id="register-email" type="email" class="form-control" autocomplete="email" placeholder="name@example.com" />
+            </div>
+            <div class="fg">
+              <label>كلمة المرور</label>
+              <input id="register-password" type="password" class="form-control" autocomplete="new-password" placeholder="6 أحرف على الأقل" />
+            </div>
+            <div class="fg">
+              <label>تأكيد كلمة المرور</label>
+              <input id="register-password-confirm" type="password" class="form-control" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" />
+            </div>
+          </div>
+          <button class="btn btn-primary auth-submit" type="button" onclick="registerAccount()">إنشاء الحساب وفتح المزرعة</button>
+        </div>
+        <div id="auth-forgot-panel" class="auth-form-panel hidden">
+          <div class="fg">
+            <label>البريد الإلكتروني</label>
+            <input id="forgot-email" type="email" class="form-control" autocomplete="email" placeholder="name@example.com" />
+          </div>
+          <div class="auth-actions-row">
+            <button class="btn btn-secondary btn-sm" type="button" onclick="switchAuthMode('login')">رجوع للدخول</button>
+          </div>
+          <button class="btn btn-primary auth-submit" type="button" onclick="requestPasswordReset()">إرسال رابط إعادة التعيين</button>
+        </div>
+        <div id="auth-verify-panel" class="auth-form-panel hidden">
+          <div class="fg">
+            <label>البريد الإلكتروني</label>
+            <input id="verify-email" type="email" class="form-control" autocomplete="email" placeholder="name@example.com" />
+          </div>
+          <div class="auth-actions-row">
+            <button class="btn btn-secondary btn-sm" type="button" onclick="switchAuthMode('login')">رجوع للدخول</button>
+          </div>
+          <button class="btn btn-primary auth-submit" type="button" onclick="resendVerification()">إرسال رابط تحقق جديد</button>
+        </div>
+        <div id="auth-reset-panel" class="auth-form-panel hidden">
+          <div class="fg">
+            <label>كلمة المرور الجديدة</label>
+            <input id="reset-password" type="password" class="form-control" autocomplete="new-password" placeholder="6 أحرف على الأقل" />
+          </div>
+          <div class="fg">
+            <label>تأكيد كلمة المرور الجديدة</label>
+            <input id="reset-password-confirm" type="password" class="form-control" autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" />
+          </div>
+          <div class="auth-actions-row">
+            <button class="btn btn-secondary btn-sm" type="button" onclick="switchAuthMode('login')">رجوع للدخول</button>
+          </div>
+          <button class="btn btn-primary auth-submit" type="button" onclick="submitPasswordReset()">حفظ كلمة المرور الجديدة</button>
+        </div>
+        <div class="auth-footnote" id="auth-footnote">دعم الحسابات والإشعارات عبر البريد: <span id="auth-support-email">support@example.com</span></div>
+      </div>
+    </div>
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div id="app" class="hidden">
+      <!-- ======================================================
+     SIDEBAR
+====================================================== -->
+      <aside id="sidebar">
+        <div class="sidebar-brand">
+          <div class="brand-row">
+            <div class="brand-icon">
+              <svg viewBox="0 0 24 24">
+                <path
+                  d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="brand-name">مزرعة ديواني هاجر</div>
+              <div class="brand-sub">إدارة الدواجن الذكية</div>
+            </div>
+          </div>
+          <div class="sidebar-date" id="sb-date"></div>
+        </div>
+        <nav class="sidebar-nav">
+          <div class="nav-label">الرئيسية</div>
+          <div class="nav-item active" data-page="dashboard">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            </svg>
+            لوحة التحكم
+            <span class="nav-badge" id="badge-alerts">0</span>
+          </div>
+          <div class="nav-label">الإدارة</div>
+          <div class="nav-item" data-page="flock">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            إدارة القطيع
+          </div>
+          <div class="nav-item" data-page="production">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            الإنتاج اليومي
+          </div>
+          <div class="nav-item" data-page="feed">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
+              />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg>
+            إدارة العلف
+            <span class="nav-badge" id="badge-feed">!</span>
+          </div>
+          <div class="nav-item" data-page="incubation">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <ellipse cx="12" cy="12" rx="7" ry="10" />
+              <path d="M8 12c1.2 1.3 2.5 2 4 2s2.8-.7 4-2" />
+            </svg>
+            التفقيس والحضانة
+          </div>
+          <div class="nav-label">التحليل</div>
+          <div class="nav-item" data-page="health">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+              />
+            </svg>
+            السجل الصحي
+          </div>
+          <div class="nav-item" data-page="financials">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            الحسابات المالية
+          </div>
+          <div class="nav-item" data-page="care">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M3 12h18" />
+              <path d="M6 8h12" />
+              <path d="M8 16h8" />
+            </svg>
+            الخم والوقاية
+          </div>
+          <div class="nav-item" data-page="product">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <path d="M4 7h16" />
+              <path d="M4 12h10" />
+              <path d="M4 17h7" />
+              <path d="M18 5l3 3-6 6-3-3z" />
+            </svg>
+            المنتج والاشتراك
+          </div>
+          <div class="nav-item" data-page="settings">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+            >
+              <circle cx="12" cy="12" r="3" />
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+              />
+            </svg>
+            الإعدادات والتقارير
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="sidebar-time" id="sb-time">--:--</div>
+        </div>
+      </aside>
 
-        <main class="content">
-            <section id="dashboard" class="tab-content active">
-                <div class="kpi-container">
-                    <div class="card">كفاءة المربي: <span id="eff-score">100%</span></div>
-                    <div class="card">نقطة التعادل: <span id="break-even">0 بيضة</span></div>
-                    <div class="card">تنبيه المخزن: <span id="stock-alert">مستقر</span></div>
+      <!-- ======================================================
+     MAIN
+====================================================== -->
+      <div id="main">
+        <header id="topbar">
+          <div class="topbar-left">
+            <button type="button" class="menu-btn" aria-label="فتح القائمة الجانبية" title="فتح القائمة" onclick="toggleSidebar()">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
+            </button>
+            <div class="topbar-title" id="topbar-title">لوحة التحكم</div>
+          </div>
+          <div class="topbar-right">
+            <div class="topbar-search">
+              <input
+                type="text"
+                class="form-control topbar-search-input"
+                id="global-search-input"
+                placeholder="بحث شامل: طير، صوص، دفعة، سجل صحي، بيع..."
+                oninput="handleGlobalSearch(this.value)"
+              />
+            </div>
+            <div class="topbar-pill">
+              <strong id="current-account-name">ضيف</strong>
+              <span id="current-farm-name">--</span>
+            </div>
+            <div class="topbar-pill" id="role-pill">الدور: مدير النظام</div>
+            <div class="topbar-pill">
+              <div class="live-dot"></div>
+              النظام يعمل
+            </div>
+            <div class="topbar-pill" id="weather-pill">الطقس غير مفعل</div>
+            <button
+              class="theme-chip"
+              id="theme-toggle-btn"
+              onclick="cycleThemeMode()"
+              type="button"
+              aria-label="تبديل المظهر"
+              title="تبديل المظهر"
+            >
+              <span>المظهر</span>
+              <strong id="theme-toggle-label">تلقائي</strong>
+            </button>
+            <button
+              class="btn btn-secondary btn-sm hidden"
+              id="install-app-btn"
+              onclick="installPWA()"
+              type="button"
+            >
+              تثبيت التطبيق
+            </button>
+            <button
+              class="btn btn-secondary btn-sm hidden"
+              id="logout-btn"
+              onclick="logoutAccount()"
+              type="button"
+            >
+              تسجيل الخروج
+            </button>
+          </div>
+        </header>
+
+        <main id="content">
+          <!-- ===================================================
+         PAGE: DASHBOARD
+    =================================================== -->
+          <section class="page active" id="page-dashboard">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>لوحة التحكم الرئيسية</h2>
+                <p>نظرة شاملة على أداء المزرعة</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button"
+                  class="btn btn-primary"
+                  onclick="openModal('modal-quick-prod')"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg>
+                  تسجيل إنتاج اليوم
+                </button>
+              </div>
+            </div>
+            <div id="dash-alerts" class="alert-panel"></div>
+            <div class="kpi-grid mb24" id="dash-kpis"></div>
+            <div class="g-charts mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">منحنى الإنتاج — آخر 30 يوم</div>
+                    <div class="card-subtitle">عدد البيض اليومي</div>
+                  </div>
                 </div>
-                <canvas id="mainChart"></canvas>
-            </section>
-
-            <section id="production" class="tab-content">
-                <div class="input-form">
-                    <h3>تسجيل الإنتاج اليومي</h3>
-                    <div class="grid-inputs">
-                        <input type="date" id="prodDate">
-                        <input type="number" id="prodQty" placeholder="عدد البيض">
-                        <select id="prodColor">
-                            <option value="1">🟡 باهت</option>
-                            <option value="2">🟠 متوسط</option>
-                            <option value="3">🔥 غامق 100%</option>
-                        </select>
-                        <input type="text" id="prodNote" placeholder="ملاحظات (جو، خلطات...)">
-                        <button onclick="saveProduction()">حفظ وتسجيل</button>
-                    </div>
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-260">
+                    <canvas id="chart-prod-line"></canvas>
+                  </div>
                 </div>
-                <table id="prodTable">
-                    <thead>
-                        <tr><th>التاريخ</th><th>العدد</th><th>اللون</th><th>الملاحظات</th><th>حذف</th></tr>
-                    </thead>
-                    <tbody id="prodBody"></tbody>
-                </table>
-            </section>
-
-            <section id="birds" class="tab-content">
-                <div class="input-form">
-                    <h3>إضافة طائر جديد</h3>
-                    <div class="grid-inputs">
-                        <input type="text" id="birdBreed" placeholder="السلالة">
-                        <input type="date" id="entryDate" title="تاريخ الدخول">
-                        <select id="birdStatus">
-                            <option value="active">نشيطة</option>
-                            <option value="medical">تحت العلاج</option>
-                        </select>
-                        <button onclick="addBird()">إضافة للقطيع</button>
-                    </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">توزيع القطيع</div>
                 </div>
-                <ul id="birdsList"></ul>
-            </section>
-
-            <section id="inventory" class="tab-content">
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-260">
+                    <canvas id="chart-flock-donut"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <div class="g2 mb20">
                 <div class="card">
-                    <h3>رصيد العلف الحالي: <span id="current-stock">0</span> كجم</h3>
-                    <p>يكفي لمدة: <span id="days-left">0</span> أيام تقريباً</p>
+                  <div class="card-header">
+                    <div class="card-title">الإنتاج حسب السلالة</div>
+                  </div>
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-200">
+                    <canvas id="chart-breed-bar"></canvas>
+                  </div>
                 </div>
-                <div class="input-form">
-                    <input type="number" id="addStockAmt" placeholder="الكمية المشتراة (كجم)">
-                    <input type="number" id="stockPrice" placeholder="سعر الكيلو (دج)">
-                    <button onclick="refillStock()">تحديث المخزن</button>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">ملخص الأداء</div>
                 </div>
+                  <div class="card-body" id="dash-summary"></div>
+                </div>
+              </div>
+              <div class="g2 mb20">
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">مركز التنبيهات</div>
+                      <div class="card-subtitle">تنبيهات النظام والمهام المفتوحة</div>
+                    </div>
+                  </div>
+                  <div class="card-body" id="notification-center"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">مهام اليوم</div>
+                      <div class="card-subtitle">لوحة تشغيل سريعة للعامل اليومي</div>
+                    </div>
+                  </div>
+                  <div class="card-body" id="daily-tasks"></div>
+                </div>
+              </div>
+              <div class="g2 mb20">
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">التقويم التشغيلي القادم</div>
+                      <div class="card-subtitle">لقاحات، تنظيف، تفقيس، ومهام مسجلة</div>
+                    </div>
+                  </div>
+                  <div class="card-body" id="agenda-calendar"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">إدخال سريع</div>
+                      <div class="card-subtitle">للوضع السريع خصوصًا من الهاتف</div>
+                    </div>
+                  </div>
+                  <div class="card-body">
+                    <div class="quick-action-grid">
+                      <button type="button" class="btn btn-primary" onclick="openModal('modal-quick-prod')">إنتاج اليوم</button>
+                      <button type="button" class="btn btn-secondary" onclick="openModal('modal-add-feed')">إضافة علف</button>
+                      <button type="button" class="btn btn-secondary" onclick="openModal('modal-add-health')">سجل صحي</button>
+                      <button type="button" class="btn btn-secondary" onclick="openModal('modal-add-sale')">بيع بيض</button>
+                      <button type="button" class="btn btn-secondary" onclick="openModal('modal-add-cleaning')">تنظيف خم</button>
+                      <button type="button" class="btn btn-secondary" onclick="openModal('modal-add-incubation')">دفعة تفقيس</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card mb20">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">مساعد القرارات</div>
+                    <div class="card-subtitle">اقتراحات تشغيلية سريعة مبنية على بيانات اليوم</div>
+                  </div>
+                </div>
+                <div class="card-body" id="decision-assistant"></div>
+              </div>
+              <div class="card mb20">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">نتائج البحث الشامل</div>
+                    <div class="card-subtitle">تظهر تلقائيًا أثناء الكتابة في شريط البحث</div>
+                  </div>
+                </div>
+                <div class="card-body" id="global-search-results">
+                  <div class="field-note">ابدأ بالكتابة في شريط البحث أعلى الصفحة.</div>
+                </div>
+              </div>
             </section>
 
-            <section id="settings" class="tab-content">
-                <button onclick="exportFullData()" class="btn-backup">📥 تحميل نسخة احتياطية (JSON)</button>
-                <button onclick="exportToExcel()" class="btn-excel">📊 تصدير لـ Excel (CSV)</button>
-                <button onclick="toggleDarkMode()" class="btn-theme">🌙 وضع ليلي</button>
+          <!-- ===================================================
+         PAGE: FLOCK MANAGEMENT
+    =================================================== -->
+          <section class="page" id="page-flock">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>إدارة القطيع</h2>
+                <p>تسجيل وإدارة جميع الطيور مع تتبع كامل لكل دجاجة</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button" class="btn btn-secondary" onclick="showFlockExit()">
+                  سجل الخروج
+                </button>
+                <button type="button"
+                  class="btn btn-primary"
+                  onclick="openModal('modal-add-bird')"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  إضافة طير
+                </button>
+              </div>
+            </div>
+            <div class="kpi-grid mb20" id="flock-kpis"></div>
+            <!-- Filter bar -->
+            <div class="card mb20">
+              <div class="card-body card-body-soft">
+                <div class="inline-toolbar">
+                  <input
+                    type="text"
+                    class="form-control control-w-200"
+                    id="flock-search"
+                    placeholder="بحث بالمعرف أو الاسم..."
+                    oninput="renderFlockTable()"
+                  />
+                  <select
+                    class="form-control control-w-160"
+                    id="flock-filter-breed"
+                    onchange="renderFlockTable()"
+                  >
+                    <option value="">كل السلالات</option>
+                    <option value="Australorp">Australorp</option>
+                    <option value="ISA Brown">ISA Brown</option>
+                    <option value="Local">محلية</option>
+                    <option value="Leghorn">Leghorn</option>
+                    <option value="Cobb500">Cobb 500</option>
+                  </select>
+                  <select
+                    class="form-control control-w-160"
+                    id="flock-filter-stage"
+                    onchange="renderFlockTable()"
+                  >
+                    <option value="">كل المراحل</option>
+                    <option value="فرخ">فرخ</option>
+                    <option value="نامية">نامية</option>
+                    <option value="بداية إنتاج">بداية إنتاج</option>
+                    <option value="إنتاج">إنتاج</option>
+                    <option value="نهاية إنتاج">نهاية إنتاج</option>
+                    <option value="تقاعد">تقاعد</option>
+                  </select>
+                  <select
+                    class="form-control control-w-160"
+                    id="flock-filter-status"
+                    onchange="renderFlockTable()"
+                  >
+                    <option value="active">نشط فقط</option>
+                    <option value="all">الكل</option>
+                    <option value="exited">مغادر فقط</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-body card-body-flush">
+                <div class="table-wrap table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>المعرف</th>
+                        <th>السلالة</th>
+                        <th>الجنس</th>
+                        <th>بيانات العمر</th>
+                        <th>المرحلة العمرية</th>
+                        <th>الحالة الصحية</th>
+                        <th>الخم</th>
+                        <th>الاقتناء</th>
+                        <th>الحالة</th>
+                        <th>إجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody id="flock-tbody"></tbody>
+                  </table>
+                </div>
+                <div id="flock-pagination" class="pagination"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================================================
+         PAGE: PRODUCTION
+    =================================================== -->
+          <section class="page" id="page-production">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>تسجيل الإنتاج اليومي</h2>
+                <p>تتبع الإنتاج مع المقارنة التلقائية بالأيام السابقة</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button"
+                  class="btn btn-primary"
+                  onclick="openModal('modal-add-prod')"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  تسجيل إنتاج جديد
+                </button>
+              </div>
+            </div>
+            <div class="kpi-grid mb20" id="prod-kpis"></div>
+            <div class="g-charts mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">منحنى الإنتاج الكامل</div>
+                    <div class="card-subtitle">جميع السجلات المدخلة</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-260">
+                    <canvas id="chart-prod-full"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">مقارنة الفترات</div>
+                </div>
+                <div class="card-body" id="prod-compare"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div><div class="card-title">سجل الإنتاج الكامل</div></div>
+                <div class="inline-actions">
+                  <input
+                    type="month"
+                    class="form-control btn-sm control-w-160"
+                    id="prod-filter-month"
+                    onchange="renderProdTable()"
+                  />
+                </div>
+              </div>
+              <div class="card-body card-body-flush">
+                <div class="table-wrap table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>التاريخ</th>
+                        <th>الإجمالي</th>
+                        <th>التالف</th>
+                        <th>الأحجام</th>
+                        <th>الألوان</th>
+                        <th>المباع/المهدى/العائلة</th>
+                        <th>المتاح بالمخزون</th>
+                        <th>عدد الطيور المنتجة</th>
+                        <th>ملاحظات</th>
+                        <th>إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody id="prod-tbody"></tbody>
+                  </table>
+                </div>
+                <div id="prod-pagination" class="pagination"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================================================
+         PAGE: FEED MANAGEMENT
+    =================================================== -->
+          <section class="page" id="page-feed">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>إدارة العلف والمخزون</h2>
+                <p>تتبع ذكي للعلف مع حساب تلقائي للاستهلاك والمتبقي</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button"
+                  class="btn btn-secondary"
+                  onclick="openModal('modal-add-meal')"
+                >
+                  إنشاء وجبة
+                </button>
+                <button type="button"
+                  class="btn btn-primary"
+                  onclick="openModal('modal-add-feed')"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  إضافة دفعة علف
+                </button>
+              </div>
+            </div>
+            <div id="feed-alerts" class="alert-panel"></div>
+            <div class="kpi-grid mb20" id="feed-kpis"></div>
+            <div class="g2 mb20" id="feed-stock-cards"></div>
+            <div class="card mb20">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">الوجبات والخلطات المحفوظة</div>
+                  <div class="card-subtitle">وصفات جاهزة من مخزون العلف الحالي</div>
+                </div>
+              </div>
+              <div class="card-body" id="feed-meals-list"></div>
+            </div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">استهلاك العلف الشهري</div>
+                </div>
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-200">
+                    <canvas id="chart-feed-bar"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">مؤشرات الكفاءة</div>
+                </div>
+                <div class="card-body" id="feed-efficiency"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">سجل حركة العلف</div>
+              </div>
+              <div class="card-body card-body-flush">
+                <div class="table-wrap table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>المورد</th>
+                        <th>الكمية (كغ)</th>
+                        <th>السعر (دج/كغ)</th>
+                        <th>الإجمالي</th>
+                        <th>الصلاحية</th>
+                        <th>الرصيد</th>
+                        <th>ملاحظة</th>
+                      </tr>
+                    </thead>
+                    <tbody id="feed-tbody"></tbody>
+                  </table>
+                </div>
+                <div id="feed-pagination" class="pagination"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================================================
+         PAGE: INCUBATION
+    =================================================== -->
+          <section class="page" id="page-incubation">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>التفقيس والحضانة</h2>
+                <p>متابعة دفعات الفقس الآلي والطبيعي والصيصان الناتجة حتى إدخالها للقطيع</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button" class="btn btn-secondary" onclick="openModal('modal-incubation-log')">تسجيل حرارة / رطوبة</button>
+                <button type="button" class="btn btn-primary" onclick="openModal('modal-add-incubation')">إضافة دفعة تفقيس</button>
+              </div>
+            </div>
+            <div class="kpi-grid mb20" id="incubation-kpis"></div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">دفعات التفقيس النشطة</div>
+                    <div class="card-subtitle">الآلية والطبيعية التي لم تُغلق بعد</div>
+                  </div>
+                </div>
+                <div class="card-body card-body-flush">
+                  <div class="table-wrap table-scroll">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>المعرف</th>
+                          <th>النوع</th>
+                          <th>السلالة</th>
+                          <th>البداية</th>
+                          <th>البيض</th>
+                          <th>الفقس المتوقع</th>
+                          <th>آخر قراءة</th>
+                          <th>إجراء</th>
+                        </tr>
+                      </thead>
+                      <tbody id="incubation-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">الصيصان تحت المتابعة</div>
+                    <div class="card-subtitle">قبل إدخالها إلى القطيع أو بيعها أو إهدائها</div>
+                  </div>
+                </div>
+                <div class="card-body card-body-flush">
+                  <div class="table-wrap table-scroll">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>المعرف</th>
+                          <th>السلالة</th>
+                          <th>العمر</th>
+                          <th>الجنس</th>
+                          <th>الحالة</th>
+                          <th>التوصية</th>
+                          <th>إجراء</th>
+                        </tr>
+                      </thead>
+                      <tbody id="chicks-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">نتائج دفعات التفقيس</div>
+                </div>
+                <div class="card-body" id="incubation-results"></div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">طباعة المعرفات</div>
+                </div>
+                <div class="card-body">
+                  <div class="field-note field-note-spaced">يمكن طباعة بطاقات الطيور النشطة أو الصيصان لوضعها على الأرجل أو الحافظات.</div>
+                  <div class="stack-row-wrap">
+                    <button type="button" class="btn btn-secondary" onclick="printBirdLabels()">طباعة معرفات الطيور</button>
+                    <button type="button" class="btn btn-secondary" onclick="printChickLabels()">طباعة معرفات الصيصان</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================================================
+         PAGE: HEALTH RECORDS
+    =================================================== -->
+          <section class="page" id="page-health">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>السجل الصحي</h2>
+                <p>تتبع التطعيمات والعلاجات ومواعيد الرعاية الصحية</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button"
+                  class="btn btn-primary"
+                  onclick="openModal('modal-add-health')"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  إضافة سجل صحي
+                </button>
+              </div>
+            </div>
+            <div class="kpi-grid mb20" id="health-kpis"></div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">المواعيد القادمة</div>
+                    <div class="card-subtitle">مرتبة حسب الأقرب</div>
+                  </div>
+                </div>
+                <div
+                  class="card-body card-body-flush"
+                  id="upcoming-vaccines"
+                ></div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">إحصائيات الصحة</div>
+                </div>
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-200">
+                    <canvas id="chart-health-donut"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">سجل الرعاية الصحية الكامل</div>
+              </div>
+              <div class="card-body card-body-flush">
+                <div class="table-wrap table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>التاريخ</th>
+                        <th>النوع</th>
+                        <th>اللقاح/الدواء</th>
+                        <th>الجرعة</th>
+                        <th>المعني</th>
+                        <th>الموعد القادم</th>
+                        <th>ملاحظات</th>
+                        <th>إجراء</th>
+                      </tr>
+                    </thead>
+                    <tbody id="health-tbody"></tbody>
+                  </table>
+                </div>
+                <div id="health-pagination" class="pagination"></div>
+              </div>
+            </div>
+            <div class="card mb20 card-top-gap">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">مكتبة اللقاحات والإرشادات</div>
+                  <div class="card-subtitle">افتح كل بطاقة لمعرفة الفائدة وسبب الاستعمال والجرعة والفاصل الزمني</div>
+                </div>
+              </div>
+              <div class="card-body" id="vaccine-library-list"></div>
+            </div>
+          </section>
+
+          <!-- ===================================================
+         PAGE: FINANCIALS
+    =================================================== -->
+          <section class="page" id="page-financials">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>الحسابات المالية</h2>
+                <p>تتبع الإيرادات والمصاريف واحتساب صافي الربح</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button"
+                  class="btn btn-secondary"
+                  onclick="openModal('modal-add-expense')"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  تسجيل مصروف
+                </button>
+                <button type="button"
+                  class="btn btn-primary"
+                  onclick="openModal('modal-add-sale')"
+                >
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                  تسجيل مبيعات
+                </button>
+              </div>
+            </div>
+            <div class="kpi-grid mb24" id="fin-kpis"></div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">الإيرادات مقابل المصاريف</div>
+                    <div class="card-subtitle">آخر 12 شهر</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-260">
+                    <canvas id="chart-fin-bar"></canvas>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">صافي الربح الشهري</div>
+                </div>
+                <div class="card-body">
+                  <div class="chart-wrap chart-h-260">
+                    <canvas id="chart-profit-line"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+              <div class="g2 mb20">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">سجل المبيعات</div>
+                </div>
+                <div class="card-body card-body-flush">
+                  <div class="table-wrap table-scroll-300">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>التاريخ</th>
+                          <th>الكمية</th>
+                          <th>أسعار الأحجام</th>
+                          <th>المشتري</th>
+                          <th>الإجمالي</th>
+                          <th>إجراء</th>
+                        </tr>
+                      </thead>
+                      <tbody id="sales-tbody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">سجل المصاريف</div>
+                </div>
+                <div class="card-body card-body-flush">
+                  <div class="table-wrap table-scroll-300">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>التاريخ</th>
+                          <th>الفئة</th>
+                          <th>المبلغ</th>
+                          <th>ملاحظة</th>
+                          <th>إجراء</th>
+                        </tr>
+                      </thead>
+                      <tbody id="expense-tbody"></tbody>
+                    </table>
+                  </div>
+                  </div>
+                </div>
+              </div>
+              <div class="g2 mb20">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">الموردون المسجلون تلقائيًا</div>
+                  </div>
+                  <div class="card-body" id="vendors-summary"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">العملاء النشطون</div>
+                  </div>
+                  <div class="card-body" id="customers-summary"></div>
+                </div>
+              </div>
+            </section>
+
+          <!-- ===================================================
+         PAGE: CARE
+    =================================================== -->
+          <section class="page" id="page-care">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>الخم والوقاية</h2>
+                <p>تنظيف الخموم والنصائح الوقائية حسب الموقع الجغرافي وتقلبات الطقس</p>
+              </div>
+              <div class="page-header-actions">
+                <button type="button" class="btn btn-secondary" onclick="refreshWeather()">تحديث الطقس</button>
+                <button type="button" class="btn btn-primary" onclick="openModal('modal-add-cleaning')">تسجيل تنظيف</button>
+              </div>
+            </div>
+            <div class="kpi-grid mb20" id="care-kpis"></div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">النصائح الوقائية حسب الطقس</div>
+                    <div class="card-subtitle">تُبنى على الموقع والطقس الحاليين والتوقعات القريبة</div>
+                  </div>
+                </div>
+                <div class="card-body" id="weather-advice-list"></div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">خطة تنظيف الخموم</div>
+                    <div class="card-subtitle">آخر تنظيف والموعد القادم لكل خم</div>
+                  </div>
+                </div>
+                <div class="card-body" id="coop-cleaning-summary"></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">سجل تنظيف الخم</div>
+              </div>
+              <div class="card-body card-body-flush">
+                <div class="table-wrap table-scroll">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>التاريخ</th>
+                        <th>الخم</th>
+                        <th>النوع</th>
+                        <th>المنفذ</th>
+                        <th>التاريخ القادم</th>
+                        <th>ملاحظات</th>
+                      </tr>
+                    </thead>
+                    <tbody id="cleaning-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================================================
+         PAGE: PRODUCT & COMMERCIALIZATION
+    =================================================== -->
+          <section class="page" id="page-product">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>المنتج والاشتراك</h2>
+                <p>تحويل النظام إلى منتج ربحي قابل للبيع بنظام اشتراك أو شراء مرة واحدة</p>
+              </div>
+              <div class="page-header-actions">
+                <button
+                  class="btn btn-secondary"
+                  id="install-app-btn-secondary"
+                  onclick="installPWA()"
+                  type="button"
+                >
+                  تثبيت التطبيق
+                </button>
+                <button class="btn btn-primary" onclick="backupNow()" type="button">
+                  نسخة احتياطية قبل التسليم
+                </button>
+              </div>
+            </div>
+            <div class="kpi-grid mb20" id="product-kpis"></div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">نماذج التسعير</div>
+                    <div class="card-subtitle">خطط مقترحة للمربين المحليين والأعمال الصغيرة</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div id="product-plan-grid" class="product-plan-grid"></div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">محاكي الإيرادات</div>
+                    <div class="card-subtitle">حساب سريع للدخل المتوقع حسب النموذج التجاري</div>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-grid">
+                    <div class="fg">
+                      <label>نموذج البيع</label>
+                      <select class="form-control" id="product-pricing-model" onchange="updateProductScenario()">
+                        <option value="monthly">اشتراك شهري</option>
+                        <option value="annual">اشتراك سنوي</option>
+                        <option value="lifetime">شراء مدى الحياة</option>
+                      </select>
+                    </div>
+                    <div class="fg">
+                      <label>عدد العملاء المتوقع</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="product-customer-count"
+                        min="1"
+                        value="25"
+                        oninput="updateProductScenario()"
+                      />
+                    </div>
+                    <div class="fg">
+                      <label>السعر (دج)</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="product-plan-price"
+                        min="1"
+                        value="3500"
+                        oninput="updateProductScenario()"
+                      />
+                    </div>
+                    <div class="fg">
+                      <label>نسبة الاحتفاظ السنوية %</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="product-retention"
+                        min="1"
+                        max="100"
+                        value="82"
+                        oninput="updateProductScenario()"
+                      />
+                    </div>
+                  </div>
+                  <div id="product-scenario-summary" class="product-note"></div>
+                </div>
+              </div>
+            </div>
+            <div class="g2 mb20">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">جاهزية المنتج</div>
+                    <div class="card-subtitle">عناصر البيع والتشغيل التي أصبحت جاهزة أو شبه جاهزة</div>
+                  </div>
+                </div>
+                <div class="card-body" id="product-readiness-list"></div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">خارطة النشر</div>
+                    <div class="card-subtitle">ما نحتاجه قبل الويب العام والحسابات والمتاجر</div>
+                  </div>
+                </div>
+                <div class="card-body" id="product-release-checklist"></div>
+              </div>
+            </div>
+            <div class="card mb20">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">الهاتف ونسخة PWA</div>
+                  <div class="card-subtitle">نسخة قابلة للتثبيت على الهاتف والعمل الجزئي دون إنترنت</div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="app-shell-grid">
+                  <div id="pwa-status-summary" class="product-note"></div>
+                  <div id="mobile-readiness-summary" class="product-note"></div>
+                  <div id="deployment-target-summary" class="product-note"></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ===================================================
+         PAGE: SETTINGS & REPORTS
+    =================================================== -->
+          <section class="page" id="page-settings">
+            <div class="page-header">
+              <div class="page-header-text">
+                <h2>الإعدادات والتقارير</h2>
+                <p>إدارة البيانات، التقارير الشاملة، والنسخ الاحتياطي</p>
+              </div>
+            </div>
+              <div class="g2 mb20">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">إعدادات المزرعة</div>
+                </div>
+                <div class="card-body">
+                  <div class="form-grid form-grid-single">
+                    <div class="fg">
+                      <label>اسم المزرعة</label
+                      ><input
+                        type="text"
+                        class="form-control"
+                        id="set-farm-name"
+                        value="مزرعة بلحاج إبراهيم"
+                      />
+                    </div>
+                    <div class="fg">
+                      <label>اسم المالك</label
+                      ><input
+                        type="text"
+                        class="form-control"
+                        id="set-owner"
+                        value="بلحاج إبراهيم"
+                      />
+                    </div>
+                    <div class="fg">
+                      <label>سعر البيضة الافتراضي (دج)</label
+                      ><input
+                        type="number"
+                        class="form-control"
+                        id="set-egg-price"
+                        value="12"
+                        min="1"
+                      />
+                    </div>
+                    <div class="fg">
+                      <label>استهلاك العلف لكل طير (كغ/يوم)</label
+                      ><input
+                        type="number"
+                        class="form-control"
+                        id="set-feed-rate"
+                        value="0.12"
+                        step="0.01"
+                      />
+                    </div>
+                    <div class="fg">
+                      <label>مظهر الواجهة</label>
+                      <select class="form-control" id="set-theme-mode">
+                        <option value="system">تلقائي حسب النظام</option>
+                        <option value="dark">ليلي</option>
+                        <option value="light">نهاري</option>
+                      </select>
+                    </div>
+                  </div>
+                    <div class="divider"></div>
+                    <div class="fg">
+                      <label>الدور النشط داخل النظام</label>
+                      <select class="form-control" id="set-active-role" onchange="changeActiveRole(this.value)">
+                        <option value="manager">مدير النظام</option>
+                        <option value="worker">عامل المزرعة</option>
+                        <option value="accountant">المحاسب</option>
+                        <option value="healthSupervisor">المشرف الصحي</option>
+                      </select>
+                    </div>
+                    <div class="fg">
+                      <label>حد تنبيه نفاد العلف (بالأيام)</label>
+                      <input type="number" class="form-control" id="set-feed-threshold" value="10" min="1" />
+                    </div>
+                    <div class="fg">
+                      <label>درجة حرارة التحذير المرتفعة</label>
+                      <input type="number" class="form-control" id="set-heat-threshold" value="34" min="20" />
+                    </div>
+                    <div class="fg">
+                      <label>درجة حرارة التحذير المنخفضة</label>
+                      <input type="number" class="form-control" id="set-cold-threshold" value="10" min="-5" />
+                    </div>
+                    <div class="divider"></div>
+                    <div class="page-header compact-page-header">
+                      <div class="page-header-text">
+                        <h2 class="compact-page-title">الموقع والطقس</h2>
+                      <p id="weather-settings-summary">
+                        لم يتم تفعيل الموقع بعد
+                      </p>
+                    </div>
+                    <div class="page-header-actions">
+                      <button type="button"
+                        class="btn btn-secondary"
+                        onclick="refreshWeather()"
+                      >
+                        تحديث الطقس
+                      </button>
+                      <button type="button"
+                        class="btn btn-primary"
+                        onclick="requestLocationWeather()"
+                      >
+                        تحديد الموقع
+                      </button>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-primary" onclick="saveSettings()">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    حفظ الإعدادات
+                  </button>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">ملخص النظام</div>
+                </div>
+                <div class="card-body" id="sys-summary"></div>
+              </div>
+            </div>
+              <div class="card mb20">
+                <div class="card-header">
+                  <div class="card-title">التقارير والتصدير</div>
+                </div>
+              <div class="card-body">
+                <div class="g3">
+                  <div class="stack-col">
+                    <div class="section-kicker">
+                      تصدير البيانات
+                    </div>
+                    <button type="button"
+                      class="btn btn-secondary"
+                      onclick="App.export.json()"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      تصدير JSON (نسخ احتياطي)
+                    </button>
+                    <button type="button"
+                      class="btn btn-secondary"
+                      onclick="App.export.csvProduction()"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        />
+                        <polyline points="14 2 14 8 20 8" />
+                      </svg>
+                      تصدير إنتاج CSV
+                    </button>
+                    <button type="button"
+                      class="btn btn-secondary"
+                      onclick="App.export.csvFinancials()"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                        />
+                        <polyline points="14 2 14 8 20 8" />
+                      </svg>
+                      تصدير مالية CSV
+                    </button>
+                  </div>
+                  <div class="stack-col">
+                    <div class="section-kicker">
+                      استيراد البيانات
+                    </div>
+                    <label
+                      class="btn btn-secondary btn-center"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                      استيراد JSON
+                      <input
+                        type="file"
+                        accept=".json"
+                        class="hidden-input"
+                        onchange="App.import.json(event)"
+                      />
+                    </label>
+                  </div>
+                  <div class="stack-col">
+                    <div class="section-kicker">
+                      إدارة البيانات
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="confirmReset()">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <polyline points="1 4 1 10 7 10" />
+                        <path d="M3.51 15a9 9 0 1 0 .49-3.51" />
+                      </svg>
+                      مسح كل البيانات
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="backupNow()">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                      </svg>
+                      إنشاء نسخة محلية الآن
+                    </button>
+                    <div class="meta-inline">
+                      تحذير: لا يمكن التراجع
+                    </div>
+                  </div>
+                  </div>
+                </div>
+              </div>
+              <div class="g2 mb20">
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">النسخ الاحتياطية المحلية</div>
+                      <div class="card-subtitle">نسخ تلقائية ومحفوظة للاستعادة السريعة</div>
+                    </div>
+                  </div>
+                  <div class="card-body" id="backup-list"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <div>
+                      <div class="card-title">سجل النشاط</div>
+                      <div class="card-subtitle">آخر العمليات التي تمت داخل النظام</div>
+                    </div>
+                  </div>
+                  <div class="card-body" id="activity-log"></div>
+                </div>
+              </div>
+              <div class="g2 mb20">
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">أخطاء النظام المسجلة</div>
+                  </div>
+                  <div class="card-body" id="system-errors-log"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header">
+                    <div class="card-title">قائمة الأدوار والصلاحيات</div>
+                  </div>
+                  <div class="card-body" id="roles-summary"></div>
+                </div>
+              </div>
             </section>
         </main>
+      </div>
     </div>
-    <script src="script.js"></script>
-</body>
+    <!-- #app -->
+
+    <!-- ======================================================
+     MODALS
+====================================================== -->
+
+    <!-- Modal: Quick Production (from dashboard) -->
+    <div class="overlay" id="modal-quick-prod">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تسجيل إنتاج اليوم السريع</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-quick-prod')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>التاريخ</label
+              ><input type="date" class="form-control" id="qp-date" />
+            </div>
+            <div class="fg">
+              <label>إجمالي البيض</label
+              ><input
+                type="number"
+                class="form-control"
+                id="qp-total"
+                placeholder="مثال: 85"
+                min="0"
+              />
+            </div>
+            <div class="fg">
+              <label>البيض التالف</label
+              ><input
+                type="number"
+                class="form-control"
+                id="qp-broken"
+                placeholder="0"
+                min="0"
+                value="0"
+              />
+            </div>
+            <div class="fg">
+              <label>حجم كبير</label
+              ><input type="number" class="form-control" id="qp-large" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>حجم متوسط</label
+              ><input type="number" class="form-control" id="qp-medium" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>حجم صغير</label
+              ><input type="number" class="form-control" id="qp-small" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>أبيض ناصع</label
+              ><input type="number" class="form-control" id="qp-white" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>كريمي</label
+              ><input type="number" class="form-control" id="qp-cream" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>منقط</label
+              ><input type="number" class="form-control" id="qp-speckled" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>بني فاتح</label
+              ><input type="number" class="form-control" id="qp-light-brown" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>المهدى</label
+              ><input type="number" class="form-control" id="qp-gifted" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>مائدة العائلة</label
+              ><input type="number" class="form-control" id="qp-family" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>مخصص للتفقيس</label
+              ><input type="number" class="form-control" id="qp-hatching" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>ملاحظة</label
+              ><input
+                type="text"
+                class="form-control"
+                id="qp-note"
+                placeholder="اختياري"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-quick-prod')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" onclick="quickLogProduction()">
+            حفظ الإنتاج
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Full Production -->
+    <div class="overlay" id="modal-add-prod">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تسجيل إنتاج مفصل</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-prod')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>التاريخ *</label
+              ><input type="date" class="form-control" id="ap-date" />
+            </div>
+            <div class="fg">
+              <label>إجمالي البيض *</label
+              ><input
+                type="number"
+                class="form-control"
+                id="ap-total"
+                min="0"
+                placeholder="عدد البيض الكلي"
+              />
+            </div>
+            <div class="fg">
+              <label>البيض التالف</label
+              ><input
+                type="number"
+                class="form-control"
+                id="ap-broken"
+                min="0"
+                value="0"
+              />
+            </div>
+            <div class="fg">
+              <label>حجم كبير</label
+              ><input
+                type="number"
+                class="form-control"
+                id="ap-gradeA"
+                min="0"
+                value="0"
+                placeholder="حجم كبير"
+              />
+            </div>
+            <div class="fg">
+              <label>حجم متوسط</label
+              ><input
+                type="number"
+                class="form-control"
+                id="ap-gradeB"
+                min="0"
+                value="0"
+                placeholder="حجم متوسط"
+              />
+            </div>
+            <div class="fg">
+              <label>حجم صغير</label
+              ><input
+                type="number"
+                class="form-control"
+                id="ap-gradeC"
+                min="0"
+                value="0"
+                placeholder="حجم صغير"
+              />
+            </div>
+            <div class="fg">
+              <label>أبيض ناصع</label><input type="number" class="form-control" id="ap-white" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>كريمي</label><input type="number" class="form-control" id="ap-cream" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>منقط</label><input type="number" class="form-control" id="ap-speckled" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>بني فاتح</label><input type="number" class="form-control" id="ap-light-brown" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>المباع</label><input type="number" class="form-control" id="ap-sold" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>المهدى</label><input type="number" class="form-control" id="ap-gifted" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>مائدة العائلة</label><input type="number" class="form-control" id="ap-family" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>مخصص للتفقيس</label><input type="number" class="form-control" id="ap-hatching" min="0" value="0" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظات</label
+            ><textarea
+              class="form-control"
+              id="ap-notes"
+              placeholder="ملاحظات إضافية..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-add-prod')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" onclick="addProduction()">
+            حفظ الإنتاج
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Bird -->
+    <div class="overlay" id="modal-add-bird">
+      <div class="modal modal-lg">
+        <div class="modal-header">
+          <h3>إضافة طير جديد</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-bird')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="ab-edit-id" />
+          <div class="surface-note surface-note-cyan fg-gap-16">
+            المعرف الدائم يُولَّد تلقائيًا بصيغة BLH-YYYY-NNNN ولا يتغير أبدًا
+          </div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>السلالة *</label>
+              <select class="form-control" id="ab-breed" onchange="refreshBirdFormVisibility()"></select>
+            </div>
+            <div class="fg hidden" id="ab-mix-wrap">
+              <label>تحديد الخلط</label>
+              <input type="text" class="form-control" id="ab-mix-details" placeholder="مثال: بلدي × لوهمان براون" />
+            </div>
+            <div class="fg">
+              <label>الجنس</label>
+              <select class="form-control" id="ab-gender">
+                <option value="female">أنثى</option>
+                <option value="male">ذكر</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>كنية / اسم اختياري</label>
+              <input type="text" class="form-control" id="ab-nickname" placeholder="مثال: الشقراء" />
+            </div>
+            <div class="fg">
+              <label>صورة اختيارية</label>
+              <input type="file" class="form-control" id="ab-image" accept="image/*" />
+            </div>
+            <div class="fg">
+              <label>نوع الاقتناء *</label>
+              <select class="form-control" id="ab-acquisition" onchange="refreshBirdFormVisibility()">
+                <option value="purchase">شراء</option>
+                <option value="gift">هدية</option>
+                <option value="hatching">تفقيس</option>
+                <option value="exchange">تبادل</option>
+              </select>
+            </div>
+            <div class="fg hidden" id="ab-exchange-wrap">
+              <label>الطير الخارج مقابل التبادل</label>
+              <select class="form-control" id="ab-exchange-bird"></select>
+            </div>
+            <div class="fg">
+              <label>تاريخ الاقتناء *</label
+              ><input type="date" class="form-control" id="ab-entry" />
+              <label class="field-note"><input type="checkbox" id="ab-entry-unknown" onchange="refreshBirdFormVisibility()" /> غير معروف</label>
+            </div>
+            <div class="fg" id="ab-age-category-wrap">
+              <label>الفئة العمرية *</label>
+              <select class="form-control" id="ab-age-category">
+                <option value="chick">فرخ</option>
+                <option value="growing">نامية</option>
+                <option value="producing">منتجة</option>
+                <option value="out_of_production">خارج إنتاج</option>
+              </select>
+            </div>
+            <div class="fg hidden" id="ab-hatch-wrap">
+              <label>تاريخ الفقس *</label
+              ><input type="date" class="form-control" id="ab-hatch" />
+            </div>
+            <div class="fg">
+              <label>وزن الدخول (كغ)</label
+              ><input
+                type="number"
+                class="form-control"
+                id="ab-weight"
+                step="0.1"
+                placeholder="مثال: 1.8"
+              />
+            </div>
+            <div class="fg">
+              <label>الخم / الدفعة</label
+              ><input
+                type="text"
+                class="form-control"
+                id="ab-pen"
+                placeholder="مثال: خم-1 أو دفعة أولى"
+              />
+            </div>
+            <div class="fg">
+              <label>الحالة الصحية</label>
+              <select class="form-control" id="ab-health">
+                <option value="healthy">سليم</option>
+                <option value="sick">مريض</option>
+                <option value="quarantine">عزل</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>ملاحظة</label
+              ><input
+                type="text"
+                class="form-control"
+                id="ab-notes"
+                placeholder="اختياري"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-add-bird')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" id="ab-submit-btn" onclick="addBird()">
+            حفظ الطير
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Exit Bird -->
+    <div class="overlay" id="modal-exit-bird">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تسجيل خروج طير</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-exit-bird')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="exit-bird-id" />
+          <div class="surface-note surface-note-red fg-gap-16">
+            <div class="text-red-soft">
+              الطير: <strong id="exit-bird-display">--</strong>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>سبب الخروج *</label>
+              <select class="form-control" id="exit-reason">
+                <option value="Mortality">نفوق (وفاة)</option>
+                <option value="Sold">بيع</option>
+                <option value="Slaughtered">ذبح</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>تاريخ الخروج *</label
+              ><input type="date" class="form-control" id="exit-date" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظات</label
+            ><input
+              type="text"
+              class="form-control"
+              id="exit-notes"
+              placeholder="سبب النفوق، ثمن البيع..."
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-exit-bird')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-danger" onclick="confirmExitBird()">
+            تأكيد الخروج
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Feed -->
+    <div class="overlay" id="modal-add-feed">
+      <div class="modal modal-md">
+        <div class="modal-header">
+          <h3>إضافة دفعة علف جديدة</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-feed')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>اسم العلف *</label>
+              <select class="form-control" id="af-type" onchange="refreshFeedFormVisibility()"></select>
+            </div>
+            <div class="fg">
+              <label>اسم المورد</label
+              ><input
+                type="text"
+                class="form-control"
+                id="af-supplier"
+                placeholder="اختياري"
+              />
+            </div>
+            <div class="fg">
+              <label>وحدة الكمية *</label>
+              <select class="form-control" id="af-unit" onchange="refreshFeedFormVisibility()">
+                <option value="kg">كلغ</option>
+                <option value="package">حزمة</option>
+                <option value="kitchen">بقايا المطبخ</option>
+              </select>
+            </div>
+            <div class="fg" id="af-qty-wrap">
+              <label>الكمية *</label
+              ><input
+                type="number"
+                class="form-control"
+                id="af-qty"
+                min="0"
+                step="0.5"
+                placeholder="مثال: 100"
+              />
+            </div>
+            <div class="fg hidden" id="af-package-weight-wrap">
+              <label>وزن الحزمة الواحدة (كغ)</label>
+              <input type="number" class="form-control" id="af-package-weight" min="0" step="0.5" placeholder="مثال: 25" />
+            </div>
+            <div class="fg">
+              <label>سعر الشراء (دج/كغ)</label
+              ><input
+                type="number"
+                class="form-control"
+                id="af-price"
+                min="0"
+                step="0.5"
+                placeholder="مثال: 55"
+              />
+            </div>
+            <div class="fg">
+              <label>تاريخ الشراء *</label
+              ><input type="date" class="form-control" id="af-date" />
+            </div>
+            <div class="fg">
+              <label>تاريخ الصلاحية</label
+              ><input type="date" class="form-control" id="af-expiry" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظة</label
+            ><textarea
+              class="form-control"
+              id="af-notes"
+              placeholder="أي ملاحظات..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-add-feed')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" onclick="addFeed()">حفظ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Meal -->
+    <div class="overlay" id="modal-add-meal">
+      <div class="modal modal-xl">
+        <div class="modal-header">
+          <h3>إنشاء وجبة / خلطة علف</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-meal')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="fg fg-gap-16">
+            <label>اسم الوجبة *</label>
+            <input type="text" class="form-control" id="meal-name" placeholder="مثال: وجبة صيصان الأسبوع الأول" />
+          </div>
+          <div class="field-note field-note-tight">
+            اختر مكونات الوجبة من المخزون الحالي وحدد الكمية المأخوذة من كل نوع.
+          </div>
+          <div id="meal-ingredients" class="form-grid"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-meal')">إلغاء</button>
+          <button type="button" class="btn btn-primary" onclick="addMealRecipe()">حفظ الوجبة</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Health Record -->
+    <div class="overlay" id="modal-add-health">
+      <div class="modal modal-md">
+        <div class="modal-header">
+          <h3>إضافة سجل صحي</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-health')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="fg fg-gap-16">
+            <label>قالب لقاح / علاج جاهز</label>
+            <select class="form-control" id="ah-template">
+              <option value="">اختياري - املأ يدويًا</option>
+            </select>
+            <div class="field-note" id="ah-template-info"></div>
+          </div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>التاريخ *</label
+              ><input type="date" class="form-control" id="ah-date" />
+            </div>
+            <div class="fg">
+              <label>النوع *</label>
+              <select class="form-control" id="ah-type">
+                <option value="vaccine">تطعيم</option>
+                <option value="treatment">علاج</option>
+                <option value="checkup">فحص دوري</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>اللقاح / الدواء *</label
+              ><input
+                type="text"
+                class="form-control"
+                id="ah-medicine"
+                placeholder="اسم اللقاح أو الدواء"
+              />
+            </div>
+            <div class="fg">
+              <label>الجرعة</label
+              ><input
+                type="text"
+                class="form-control"
+                id="ah-dose"
+                placeholder="مثال: 0.5 مل لكل طير"
+              />
+            </div>
+            <div class="fg">
+              <label>المعني</label>
+              <select class="form-control" id="ah-target">
+                <option value="all">القطيع كاملاً</option>
+                <option value="pen">خم محدد</option>
+                <option value="individual">طير محدد</option>
+              </select>
+            </div>
+            <div class="fg" id="ah-target-detail-wrap">
+              <label>تفاصيل المعني</label>
+              <input
+                type="text"
+                class="form-control"
+                id="ah-target-detail"
+                placeholder="رقم الخم أو معرف الطير"
+              />
+            </div>
+            <div class="fg">
+              <label>الموعد القادم (إن وجد)</label
+              ><input type="date" class="form-control" id="ah-next" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظات</label
+            ><textarea
+              class="form-control"
+              id="ah-notes"
+              placeholder="أعراض، استجابة، تعليمات..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-add-health')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" onclick="addHealthRecord()">
+            حفظ السجل
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Sale -->
+    <div class="overlay" id="modal-add-sale">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تسجيل عملية بيع</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-sale')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>التاريخ *</label
+              ><input type="date" class="form-control" id="as-date" />
+            </div>
+            <div class="fg">
+              <label>بيض كبير</label
+              ><input
+                type="number"
+                class="form-control"
+                id="as-large-qty"
+                min="0"
+                value="0"
+              />
+            </div>
+            <div class="fg">
+              <label>سعر الكبير (دج)</label
+              ><input
+                type="number"
+                class="form-control"
+                id="as-large-price"
+                min="0"
+                step="0.5"
+                value="0"
+              />
+            </div>
+            <div class="fg">
+              <label>بيض متوسط</label
+              ><input type="number" class="form-control" id="as-medium-qty" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>سعر المتوسط (دج)</label
+              ><input type="number" class="form-control" id="as-medium-price" min="0" step="0.5" value="0" />
+            </div>
+            <div class="fg">
+              <label>بيض صغير</label
+              ><input type="number" class="form-control" id="as-small-qty" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>سعر الصغير (دج)</label
+              ><input type="number" class="form-control" id="as-small-price" min="0" step="0.5" value="0" />
+            </div>
+            <div class="fg">
+              <label>المشتري</label
+              ><input
+                type="text"
+                class="form-control"
+                id="as-buyer"
+                placeholder="اسم المشتري"
+              />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظة</label
+            ><input
+              type="text"
+              class="form-control"
+              id="as-notes"
+              placeholder="اختياري"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-add-sale')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-primary" onclick="addSale()">حفظ البيع</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Expense -->
+    <div class="overlay" id="modal-add-expense">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تسجيل مصروف</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-expense')">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>التاريخ *</label
+              ><input type="date" class="form-control" id="ae-date" />
+            </div>
+            <div class="fg">
+              <label>الفئة *</label>
+              <select class="form-control" id="ae-category">
+                <option value="feed">علف</option>
+                <option value="medicine">دواء وتطعيم</option>
+                <option value="electricity">كهرباء</option>
+                <option value="labor">عمالة</option>
+                <option value="maintenance">صيانة</option>
+                <option value="chicks">شراء طيور</option>
+                <option value="other">أخرى</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>المبلغ (دج) *</label
+              ><input
+                type="number"
+                class="form-control"
+                id="ae-amount"
+                min="0"
+                placeholder="المبلغ بالدينار"
+              />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظة</label
+            ><input
+              type="text"
+              class="form-control"
+              id="ae-notes"
+              placeholder="وصف المصروف..."
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button"
+            class="btn btn-secondary"
+            onclick="closeModal('modal-add-expense')"
+          >
+            إلغاء
+          </button>
+          <button type="button" class="btn btn-danger" onclick="addExpense()">
+            تسجيل المصروف
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Incubation -->
+    <div class="overlay" id="modal-add-incubation">
+      <div class="modal modal-xl">
+        <div class="modal-header">
+          <h3>إضافة دفعة تفقيس</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-incubation')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>نوع التفقيس *</label>
+              <select class="form-control" id="inc-type" onchange="refreshIncubationFormVisibility()">
+                <option value="artificial">فقاسة آلية</option>
+                <option value="natural">تحت دجاجة</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>السلالة *</label>
+              <select class="form-control" id="inc-breed"></select>
+            </div>
+            <div class="fg">
+              <label>تاريخ البداية *</label>
+              <input type="date" class="form-control" id="inc-start-date" />
+            </div>
+            <div class="fg">
+              <label>عدد البيض *</label>
+              <input type="number" class="form-control" id="inc-egg-count" min="1" />
+            </div>
+            <div class="fg hidden" id="inc-hen-wrap">
+              <label>الدجاجة الحاضنة *</label>
+              <select class="form-control" id="inc-hen-id"></select>
+            </div>
+            <div class="fg">
+              <label>مصدر البيض</label>
+              <input type="text" class="form-control" id="inc-source" placeholder="من القطيع / شراء / هدية" />
+            </div>
+            <div class="fg">
+              <label>درجة الحرارة الابتدائية</label>
+              <input type="number" class="form-control" id="inc-temp" step="0.1" placeholder="37.5" />
+            </div>
+            <div class="fg">
+              <label>الرطوبة الابتدائية</label>
+              <input type="number" class="form-control" id="inc-humidity" step="0.1" placeholder="55" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظات</label>
+            <textarea class="form-control" id="inc-notes" placeholder="تفاصيل الدفعة أو حالة الحاضنة"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-incubation')">إلغاء</button>
+          <button type="button" class="btn btn-primary" onclick="addIncubationBatch()">حفظ الدفعة</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Incubation Log -->
+    <div class="overlay" id="modal-incubation-log">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تسجيل قراءة تفقيس</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-incubation-log')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>الدفعة *</label>
+              <select class="form-control" id="ilog-batch"></select>
+            </div>
+            <div class="fg">
+              <label>التاريخ *</label>
+              <input type="date" class="form-control" id="ilog-date" />
+            </div>
+            <div class="fg">
+              <label>الحرارة</label>
+              <input type="number" class="form-control" id="ilog-temp" step="0.1" />
+            </div>
+            <div class="fg">
+              <label>الرطوبة</label>
+              <input type="number" class="form-control" id="ilog-humidity" step="0.1" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظات</label>
+            <textarea class="form-control" id="ilog-notes"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-incubation-log')">إلغاء</button>
+          <button type="button" class="btn btn-primary" onclick="addIncubationLog()">حفظ القراءة</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Finalize Incubation -->
+    <div class="overlay" id="modal-finalize-incubation">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>إغلاق دفعة التفقيس</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-finalize-incubation')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="final-batch-id" />
+          <div class="field-note field-note-spaced" id="final-batch-info"></div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>عدد الصيصان الناتجة *</label>
+              <input type="number" class="form-control" id="final-hatched" min="0" />
+            </div>
+            <div class="fg">
+              <label>ذكور</label>
+              <input type="number" class="form-control" id="final-male" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>إناث</label>
+              <input type="number" class="form-control" id="final-female" min="0" value="0" />
+            </div>
+            <div class="fg">
+              <label>غير محدد</label>
+              <input type="number" class="form-control" id="final-unknown" min="0" value="0" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-finalize-incubation')">إلغاء</button>
+          <button type="button" class="btn btn-primary" onclick="finalizeIncubationBatch()">اعتماد النتائج</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Chick Action -->
+    <div class="overlay" id="modal-chick-action">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تحديث حالة الصوص</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-chick-action')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="chick-action-id" />
+          <div class="field-note field-note-spaced" id="chick-action-info"></div>
+          <div class="form-grid">
+            <div class="fg">
+              <label>الإجراء *</label>
+              <select class="form-control" id="chick-action-type">
+                <option value="flock">إدخال إلى القطيع</option>
+                <option value="sold">بيع</option>
+                <option value="gifted">إهداء</option>
+                <option value="dead">نفوق</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>الجنس</label>
+              <select class="form-control" id="chick-action-gender">
+                <option value="unknown">غير محدد</option>
+                <option value="female">أنثى</option>
+                <option value="male">ذكر</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>الخم المقترح عند الإدخال</label>
+              <input type="text" class="form-control" id="chick-action-pen" placeholder="اختياري" />
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-chick-action')">إلغاء</button>
+          <button type="button" class="btn btn-primary" onclick="applyChickAction()">حفظ</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add Cleaning -->
+    <div class="overlay" id="modal-add-cleaning">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>تسجيل تنظيف خم</h3>
+          <button type="button" class="modal-close" aria-label="إغلاق النافذة" title="إغلاق" onclick="closeModal('modal-add-cleaning')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="fg">
+              <label>الخم *</label>
+              <select class="form-control" id="cl-coop"></select>
+            </div>
+            <div class="fg">
+              <label>التاريخ *</label>
+              <input type="date" class="form-control" id="cl-date" />
+            </div>
+            <div class="fg">
+              <label>نوع التنظيف *</label>
+              <select class="form-control" id="cl-kind">
+                <option value="routine">تنظيف عادي</option>
+                <option value="deep">تنظيف عميق</option>
+                <option value="disinfection">تعقيم</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>تم بواسطة</label>
+              <input type="text" class="form-control" id="cl-done-by" placeholder="اسم الشخص" />
+            </div>
+            <div class="fg">
+              <label>التنظيف القادم</label>
+              <input type="date" class="form-control" id="cl-next-date" />
+            </div>
+          </div>
+          <div class="fg">
+            <label>ملاحظات</label>
+            <textarea class="form-control" id="cl-notes"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modal-add-cleaning')">إلغاء</button>
+          <button type="button" class="btn btn-primary" onclick="addCleaningRecord()">حفظ</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="toasts"></div>
+    <script src="js/runtime-config.js?v=20260511-production-readiness"></script>
+    <script src="js/app.js?v=20260511-production-readiness"></script>
+  </body>
 </html>

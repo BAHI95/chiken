@@ -1,0 +1,5 @@
+node_modules
+backups
+data
+*.db
+npm-debug.log*

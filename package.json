@@ -1,0 +1,39 @@
+{
+  "name": "chicken-platform",
+  "private": true,
+  "version": "0.1.0",
+  "overrides": {
+    "react": "19.0.0",
+    "react-native": "0.79.6"
+  },
+  "workspaces": [
+    "apps/api",
+    "apps/android",
+    "apps/ios",
+    "packages/core",
+    "packages/mobile-shell"
+  ],
+  "scripts": {
+    "web:legacy": "npx serve . -l 4173",
+    "runtime:config": "node tools/generate-runtime-config.cjs",
+    "styles:build": "postcss styles/app.source.css -o styles/app.css",
+    "styles:watch": "postcss styles/app.source.css -o styles/app.css --watch",
+    "web:start-local": "npm run runtime:config && npm run styles:build && node tools/local-static-server.cjs . 5512",
+    "dev:local-stack": "node tools/start-local-stack.cjs",
+    "api:start": "npm run start --workspace @farm/api",
+    "api:migrate": "npm run migrate --workspace @farm/api",
+    "api:migrate:sqlite": "npm run migrate:sqlite --workspace @farm/api",
+    "api:backup": "npm run backup --workspace @farm/api",
+    "api:restore": "npm run restore --workspace @farm/api --",
+    "api:health-check": "npm run health-check --workspace @farm/api",
+    "android:start": "npm run start --workspace @farm/android-app",
+    "ios:start": "npm run start --workspace @farm/ios-app"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.0",
+    "dotenv": "^17.4.2",
+    "postcss": "^8.5.14",
+    "postcss-cli": "^11.0.1",
+    "tailwindcss": "^4.3.0"
+  }
+}
